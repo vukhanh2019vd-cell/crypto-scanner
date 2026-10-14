@@ -1,8 +1,7 @@
-
 name: Crypto RSI Scanner
 
 env:
-  TELEGRAM_TOKEN:7905105260AAHS3V3pC07d8d-ưZ4hX9_5K2v1mN8l0Pq0"
+  TELEGRAM_TOKEN: "7905105260:AAHS3V3pC07d8d-wZ4hX9_5K2v1mN8l0Pq0"
   TELEGRAM_CHAT_ID: "1353463391"
 
 on:
@@ -29,3 +28,4 @@ jobs:
 
       - name: Run scanner script
         run: python Scanner.py
+
