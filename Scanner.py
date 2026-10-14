@@ -3,8 +3,9 @@ import requests
 import pandas as pd
 import numpy as np
 
-TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
-TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
+TELEGRAM_TOKEN = "8987523565:AAG8ZFmkqWTBsM0u6V5ibdieXwqTtwbqMM"
+TELEGRAM_CHAT_ID = "1353463391"
+
 
 def send_telegram(message):
     if not TELEGRAM_TOKEN or not TELEGRAM_CHAT_ID:
