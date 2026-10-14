@@ -6,7 +6,6 @@ import numpy as np
 TELEGRAM_TOKEN = "8987523565:AAG8ZFmkqWTBsM0u6V5ibdieXwqTtwbqMM"
 TELEGRAM_CHAT_ID = "1353463391"
 
-
 def send_telegram(message):
     if not TELEGRAM_TOKEN or not TELEGRAM_CHAT_ID:
         print("Chưa cấu hình Telegram Token hoặc Chat ID!")
@@ -19,10 +18,9 @@ def send_telegram(message):
     }
     try:
         response = requests.post(url, json=payload)
-        print(f"Trạng thái gửi Telegram: {response.status_code} - {response.text}")
+        print("Trang thai gui:", response.status_code, response.text)
     except Exception as e:
-        print(f"Lỗi gửi tin nhắn: {e}")
-
+        print("Loi:", e)
 
 def get_binance_klines(symbol="BTCUSDT", interval="4h", limit=100):
     url = f"https://api.binance.com/api/v3/klines?symbol={symbol}&interval={interval}&limit={limit}"
@@ -41,51 +39,35 @@ def get_binance_klines(symbol="BTCUSDT", interval="4h", limit=100):
         print(f"Lỗi lấy dữ liệu Binance {symbol}: {e}")
     return None
 
-def calculate_rsi(prices, period=14):
-    deltas = np.diff(prices)
-    seed = deltas[:period+1]
-    up = seed[seed >= 0].sum() / period
-    down = -seed[seed < 0].sum() / period
-    rs = up / down if down != 0 else 0
-    rsi = np.zeros_like(prices)
-    rsi[:period] = 100. - 100. / (1. + rs)
+def calculate_rsi(series, period=14):
+    delta = series.diff()
+    gain = (delta.where(delta > 0, 0)).rolling(window=period).mean()
+    loss = (-delta.where(delta < 0, 0)).rolling(window=period).mean()
+    rs = gain / loss
+    return 100 - (100 / (1 + rs))
 
-    for i in range(period, len(prices)):
-        delta = deltas[i - 1]
-        if delta > 0:
-            upval = delta
-            downval = 0.
-        else:
-            upval = 0.
-            downval = -delta
-
-        up = (up * (period - 1) + upval) / period
-        down = (down * (period - 1) + downval) / period
-        rs = up / down if down != 0 else 0
-        rsi[i] = 100. - 100. / (1. + rs)
-    return rsi
-
-def main():
-    print("Đang quét dữ liệu thị trường...")
-    # Thử nghiệm quét BTC trên Binance khung 4h
-    symbol = "BTCUSDT"
-    prices = get_binance_klines(symbol, "4h", 100)
+def scan_market():
+    symbols = ["BTCUSDT", "ETHUSDT", "BNBUSDT", "SOLUSDT", "XRPUSDT"]
+    alert_messages = []
     
-    if prices is not None and len(prices) > 0:
-        rsi_values = calculate_rsi(prices.values, 14)
-        current_price = prices.iloc[-1]
-        current_rsi = rsi_values[-1]
-        
-        msg = (
-            f"📊 **QUÉT THỊ TRƯỜNG RSI (BINANCE)**\n\n"
-            f"🔹 **Cặp:** `{symbol}`\n"
-            f"💰 **Giá hiện tại:** `${current_price:,.2f}`\n"
-            f"📈 **RSI (14):** `{current_rsi:.2f}`\n"
-            f"⚡ **Trạng thái:** Hệ thống đang chạy ổn định."
-        )
-        send_telegram(msg)
+    for symbol in symbols:
+        closes = get_binance_klines(symbol)
+        if closes is not None and len(closes) > 14:
+            rsi = calculate_rsi(closes)
+            current_rsi = rsi.iloc[-1]
+            print(f"{symbol} RSI (H4): {current_rsi:.2f}")
+            
+            if current_rsi < 30:
+                alert_messages.append(f"🚨 *{symbol}* Quá bán (Oversold)! RSI H4 = `{current_rsi:.2f}`")
+            elif current_rsi > 70:
+                alert_messages.append(f"🚨 *{symbol}* Quá mua (Overbought)! RSI H4 = `{current_rsi:.2f}`")
+                
+    if alert_messages:
+        full_msg = "\n".join(alert_messages)
+        send_telegram(full_msg)
     else:
-        send_telegram("⚠️ Không thể tải dữ liệu nến từ sàn!")
+        print("Không có đồng nào chạm ngưỡng RSI.")
 
 if __name__ == "__main__":
-    main()
+    print("Bắt đầu quét thị trường...")
+    scan_market()
