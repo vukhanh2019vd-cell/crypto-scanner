@@ -5,7 +5,6 @@ import numpy as np
 
 TELEGRAM_TOKEN = "8987523565:AAG8ZFmkqWTBsM0u6V5ibdieXwqTtwbqMM"
 TELEGRAM_CHAT_ID = "1353463391"
-
 def send_telegram(message):
     if not TELEGRAM_TOKEN or not TELEGRAM_CHAT_ID:
         print("Chưa cấu hình Telegram Token hoặc Chat ID!")
@@ -21,7 +20,6 @@ def send_telegram(message):
         print("Trang thai gui:", response.status_code, response.text)
     except Exception as e:
         print("Loi:", e)
-
 def get_binance_klines(symbol="BTCUSDT", interval="4h", limit=100):
     url = f"https://api.binance.com/api/v3/klines?symbol={symbol}&interval={interval}&limit={limit}"
     try:
@@ -45,7 +43,6 @@ def calculate_rsi(series, period=14):
     loss = (-delta.where(delta < 0, 0)).rolling(window=period).mean()
     rs = gain / loss
     return 100 - (100 / (1 + rs))
-
 def scan_market():
     symbols = ["BTCUSDT", "ETHUSDT", "BNBUSDT", "SOLUSDT", "XRPUSDT"]
     alert_messages = []
