@@ -59,11 +59,8 @@ def scan_market():
             elif current_rsi > 70:
                 alert_messages.append(f"🚨 *{symbol}* Quá mua (Overbought)! RSI H4 = `{current_rsi:.2f}`")
                 
-    if alert_messages:
-        full_msg = "\n".join(alert_messages)
-        send_telegram(full_msg)
-    else:
-        print("Không có đồng nào chạm ngưỡng RSI.")
+    send_telegram("🚨 Test bot: Hệ thống quét RSI đang hoạt động bình thường!")
+
 
 if __name__ == "__main__":
     print("Bắt đầu quét thị trường...")
