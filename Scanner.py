@@ -19,9 +19,10 @@ def send_telegram(message):
     }
     try:
         response = requests.post(url, json=payload)
-        print(f"Trạng thái gửi Telegram: {response.status_code}")
+        print(f"Trạng thái gửi Telegram: {response.status_code} - {response.text}")
     except Exception as e:
         print(f"Lỗi gửi tin nhắn: {e}")
+
 
 def get_binance_klines(symbol="BTCUSDT", interval="4h", limit=100):
     url = f"https://api.binance.com/api/v3/klines?symbol={symbol}&interval={interval}&limit={limit}"
